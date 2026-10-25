@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GSIAROBHUB - AI ROBOT PARLANT + DASHBOARD</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#061226">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#061226;color:#fff;font-family:Arial,sans-serif}
+.header{background:linear-gradient(180deg,#0a2040,#061226);padding:16px;text-align:center;border-bottom:3px solid #ffd166;position:sticky;top:0}
+.header h1{color:#00f0ff;font-size:20px;letter-spacing:2px}
+.badge{display:inline-block;border:1px solid #ffd166;color:#ffd166;padding:4px 10px;border-radius:20px;font-size:9px;margin:3px}
+.phone{max-width:440px;margin:14px auto;background:linear-gradient(180deg,#0f2242,#060d1f);border:2px solid #1a3a5a;border-radius:28px;overflow:hidden;box-shadow:0 0 30px rgba(0,240,255,0.25)}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#0a1a33;border-bottom:1px solid #1e2d4a;font-size:12px}
+.robot-zone{padding:16px;text-align:center;background:radial-gradient(ellipse at center,#0a2a5a 0%,#060d1f 70%)}
+.bubble{background:#0e2a4a;border:1.5px solid #00f0ff;border-radius:18px 18px 4px 18px;padding:12px;font-size:12px;line-height:1.5;color:#c0f0ff;text-align:left;max-width:80%;margin-left:auto}
+.robot-box{width:130px;height:130px;margin:18px auto;background:radial-gradient(circle,#1a5a9a,#000);border-radius:50%;border:3px solid #00f0ff;display:flex;align-items:center;justify-content:center;font-size:64px;animation:float 3s infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes bar{0%{height:4px}50%{height:22px}100%{height:4px}}
+.wave{display:none;justify-content:center;gap:4px;margin:10px 0}
+.wave div{width:5px;height:16px;background:#00f0ff;border-radius:4px;animation:bar 0.5s infinite}
+.input-zone{display:flex;gap:8px;padding:10px 16px;background:#081a33;border-radius:14px;margin:0 16px;border:1px solid #1e3a5a}
+.input-zone input{flex:1;background:transparent;border:none;color:#fff;font-size:12px;outline:none}
+.input-zone button{background:#00f0ff;border:none;border-radius:10px;padding:8px 14px;font-weight:bold}
+.mic-row{display:flex;gap:10px;justify-content:center;align-items:center;padding:14px}
+.mic-btn{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#ff2a2a,#aa0000);border:3px solid #fff;font-size:30px;box-shadow:0 0 18px rgba(255,0,0,0.6)}
+.btn{padding:10px 14px;border-radius:12px;border:none;font-size:11px;font-weight:bold;cursor:pointer}
+.btn-blue{background:#078bff;color:#fff} .btn-gold{background:#ffd166;color:#000} .btn-dark{background:#1a2a4a;border:1px solid #2a3a5a;color:#fff}
+.dashboard{margin:14px;background:#0a1930;border:1.5px solid #1e3a5a;border-radius:16px;padding:14px}
+.dashboard h3{font-size:10px;color:#00f0ff;letter-spacing:1.5px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;font-size:11px;padding:6px 0;border-bottom:1px solid #122a4a}
+.row b{color:#fff} .row span:last-child{color:#ffd166;font-weight:bold}
+.progress{margin:10px 0;background:#001122;height:12px;border-radius:10px;overflow:hidden}
+.progress-bar{height:100%;background:linear-gradient(90deg,#00f0ff,#00ff88);width:0%;border-radius:10px;transition:1s}
+.status{font-size:11px;color:#00ff88;display:flex;align-items:center;gap:6px;margin:8px 0}
+.btns{display:flex;gap:8px;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>GSIAROBHUB</h1>
+<small>AI ROBOT PARLANT + TABLEAU DE BORD • LOME TOGO</small><br>
+<span class="badge">AGI-4 OPERATIONNEL</span>
+<span class="badge">VOCAL OFFLINE PWA</span>
+</div>
+
+<div class="phone">
+<div class="topbar"><span>☰ GSIAROBHUB</span><span style="color:#00f0ff">AI DATA CODER</span><span>⚙️</span></div>
+<div class="robot-zone">
+<div class="bubble" id="robotBubble">Bonjour DG! Je suis AGI-4, analyste de données GSIA. Vos instructions vocales seront transférées automatiquement dans le tableau de bord en bas pour validation. Dis : Analyser les ventes, Optimiser stocks, ou Transfert Flowlogix.</div>
+<div class="robot-box"><span id="robotIcon">🤖</span></div>
+<div class="wave" id="wave"><div></div><div style="animation-delay:0.1s"></div><div style="animation-delay:0.2s"></div><div style="animation-delay:0.3s"></div></div>
+<div style="font-size:10px;color:#7aa0ff" id="micLabel">🎤 Appuie sur le micro rouge pour parler</div>
+</div>
+<div class="input-zone">
+<input id="userInput" placeholder="Ex: Analyser les ventes Août 2024..." />
+<button onclick="sendCmd()">➤</button>
+</div>
+<div class="mic-row">
+<button class="mic-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+<button class="btn btn-blue" onclick="speakLast()">🔊 Répéter</button>
+<button class="btn btn-dark" onclick="stopVoice()">⏹️ Stop</button>
+</div>
+<div class="dashboard">
+<h3>📊 TABLEAU DE BORD IA - SUIVI DES DONNÉES</h3>
+<div class="row"><span>COMMANDE:</span><b id="cmdText">En attente...</b></div>
+<div class="status" id="transferStatus">⏳ En attente de commande vocale</div>
+<div class="progress"><div class="progress-bar" id="progBar"></div></div>
+<div class="row"><span>VENTES (AOÛT):</span><span id="v1">€0</span></div>
+<div class="row"><span>STOCKS ACTUELS:</span><span id="v2">0 unités</span></div>
+<div class="row"><span>OPTIMISATION:</span><span id="v3">--</span></div>
+<div class="row"><span>ÉTAT IA:</span><span id="v4" style="color:#ffaa00">En attente</span></div>
+<div class="btns">
+<button class="btn" style="flex:1;background:#00d084;color:#000" onclick="validate()">✅ VALIDER</button>
+<button class="btn btn-blue" style="flex:1" onclick="follow()">📍 SUIVRE</button>
+</div>
+</div>
+<div style="padding:0 14px 14px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center">
+<button onclick="quick('analyser les ventes août')" class="btn btn-gold" style="font-size:10px">📊 Ventes</button>
+<button onclick="quick('optimiser les stocks')" class="btn btn-dark" style="font-size:10px">📦 Stocks</button>
+<button onclick="quick('transférer vers Flowlogix')" class="btn btn-dark" style="font-size:10px">🌍 Flowlogix</button>
+<button onclick="quick('fiche pédagogique')" class="btn btn-dark" style="font-size:10px">📘 Fiche</button>
+</div>
+</div>
+
+<div style="max-width:440px;margin:20px auto;padding:14px;background:#0e1933;border-radius:16px;border:1px solid #1e2d4a;text-align:center">
+<h3 style="color:#ffd166">💼 GSIA STUDIO</h3>
+<a href="https://wa.me/22892817593" style="background:#00d084;color:#000;padding:10px 14px;border-radius:10px;text-decoration:none;font-size:11px;font-weight:bold;display:inline-block;margin:5px">WhatsApp 92 81 75 93</a>
+<a href="https://wa.me/22898221495" style="background:#078bff;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-size:11px;display:inline-block;margin:5px">98 22 14 95</a>
+<div style="margin-top:8px;font-size:9px;color:#556677">gsiastudio2026-arch.github.io/gsiarobhub/ • Made in Togo</div>
+</div>
+
+<script>
+let listening=false, rec, lastAnswer="";
+const answers={
+"ventes":"Parfait DG, j'analyse tes ventes d'août ! 142 500 euros, hausse de 12 pourcent. Je transfère automatiquement dans le tableau en bas. Barre de transfert en cours.",
+"stocks":"J'optimise tes stocks DG ! 10 330 unités actuellement. Mon IA prévoit commande de 250 panneaux avant septembre. Je mets à jour le tableau en temps réel.",
+"flowlogix":"Flowlogix B2B2G activé ! Je transfère tes données vers Passeport Numérique ZLECAf. Vérification douane automatique, compte séquestre sécurisé. Transfert 66 pourcent.",
+"fiche":"Fiche pédagogique comprise ! Je génère fiche technique analyse données : objectif, méthode, tableau, graphiques. Exportable Word modifiable."
+};
+function speak(t){lastAnswer=t; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='fr-FR'; u.rate=0.9; document.getElementById('robotIcon').innerText='🗣️'; document.getElementById('wave').style.display='flex'; document.getElementById('robotBubble').innerText=t; u.onend=()=>{document.getElementById('robotIcon').innerText='🤖'; document.getElementById('wave').style.display='none';}; speechSynthesis.speak(u);}
+function speakLast(){if(lastAnswer) speak(lastAnswer);} function stopVoice(){speechSynthesis.cancel(); document.getElementById('robotIcon').innerText='🤖'; document.getElementById('wave').style.display='none';}
+function toggleMic(){if(listening){stopMic();return;} listening=true; document.getElementById('micBtn').innerText='⏹️'; document.getElementById('micBtn').style.background='radial-gradient(circle,#00ff88,#009955)'; document.getElementById('micLabel').innerText='👂 ECOUTE - PARLEZ DG !'; document.getElementById('wave').style.display='flex'; const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR){alert('Utilise Chrome');stopMic();return;} rec=new SR(); rec.lang='fr-FR'; rec.start(); rec.onresult=e=>{const txt=e.results[0][0].transcript; document.getElementById('userInput').value=txt; process(txt); stopMic();}; rec.onerror=()=>stopMic(); rec.onend=()=>{if(listening) stopMic();} }
+function stopMic(){listening=false; document.getElementById('micBtn').innerText='🎤'; document.getElementById('micBtn').style.background='radial-gradient(circle,#ff2a2a,#aa0000)'; document.getElementById('micLabel').innerText='🎤 Appuie sur le micro rouge'; document.getElementById('wave').style.display='none'; try{rec.stop()}catch(e){}}
+function sendCmd(){const t=document.getElementById('userInput').value; if(t) process(t);} function quick(t){document.getElementById('userInput').value=t; process(t);}
+function process(t){const l=t.toLowerCase(); let key='ventes'; if(l.includes('stock')) key='stocks'; else if(l.includes('flow')||l.includes('zlecaf')||l.includes('transfert')) key='flowlogix'; else if(l.includes('fiche')) key='fiche'; const ans=answers[key]; speak(ans); document.getElementById('cmdText').innerText=t.substring(0,35); document.getElementById('transferStatus').innerText='🔄 TRANSPORT IA EN COURS (0%)...'; document.getElementById('progBar').style.width='0%'; let p=0; const iv=setInterval(()=>{p+=Math.random()*20; if(p>100) p=100; document.getElementById('progBar').style.width=p+'%'; document.getElementById('transferStatus').innerText='🔄 TRANSPORT IA EN COURS ('+Math.round(p)+'%)'; if(p>=100){clearInterval(iv); document.getElementById('transferStatus').innerText='✅ TRANSFERT TERMINÉ - Validé par IA'; document.getElementById('v1').innerText='€'+(120000+Math.floor(Math.random()*40000)).toLocaleString(); document.getElementById('v2').innerText=(8000+Math.floor(Math.random()*4000))+' unités'; document.getElementById('v3').innerText='+'+(Math.random()*3).toFixed(2); document.getElementById('v4').innerText='Prêt à exporter'; document.getElementById('v4').style.color='#00ff88';}},250);}
+function validate(){speak('Analyse validée DG ! Rapport généré. Données exportées.'); document.getElementById('v4').innerText='✅ Validé & Exporté';} function follow(){speak('Suivi produit activé ! Je trace tes stocks en temps réel.');}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
+window.onload=()=>{setTimeout(()=>speak('Bonjour DG, Gsiarobhub AGI-4 opérationnel. Je suis ton analyste qui parle et qui transfère vers le tableau en bas.'),1000);};
+</script>
+</body>
+</html>
